@@ -1,5 +1,4 @@
 
-
 import java.io.*;
 import java.util.*;
 
@@ -8,11 +7,11 @@ public class Main {
     private static ArrayList<Borrowers> borrowers = new ArrayList<>();
     private static userPrompt userPrompt = new userPrompt();
     private static Scanner input = new Scanner(System.in);
-    private static AssetManager assetManager = new AssetManager();
+    // private static AssetManager assetManager = new AssetManager();
     private static ArrayList<Material> library = new ArrayList<>();
     // private static final String FILE_NAME = "borrowers.txt";
 
-    FileReader fr = null;  
+    FileReader fr = null;
     FileWriter fw = null;
 
     public static void main(String[] args) {
@@ -64,16 +63,44 @@ public class Main {
                             ViewBorrower();
                             break;
                         case 5:
-                            ClearScreen();
-                            viewAssetHistory();
-                            break;
+                            continue;
                     }
 
                     break;
 
                 case 2:
                     ClearScreen();
-                    System.out.println("Assets Management");
+                    System.out.println("********************************************************");
+                    System.out.println("Assets' Information Management");
+                    System.out.println("********************************************************");
+                    System.out.println("[1] Add");
+                    System.out.println("[2] Edit");
+                    System.out.println("[3] Delete");
+                    System.out.println("[4] View");
+                    System.out.println("[5] Back to Main Menu");
+                    int aInfoManChoice = userPrompt.getValidIntegerInput("Enter Choice: ");
+
+                    switch (aInfoManChoice) {
+                        case 1:
+                            ClearScreen();
+                            AddMaterial();
+                            break;
+                        case 2:
+                            ClearScreen();
+                            EditMaterial();
+                            break;
+                        case 3:
+                            ClearScreen();
+                            // DeleteMaterial();
+                            break;
+                        case 4:
+                            ClearScreen();
+                            // ViewMaterials();
+                            break;
+                        case 5:
+                            continue;
+                    }
+
                     break;
                 case 3:
                     ClearScreen();
@@ -87,12 +114,12 @@ public class Main {
                 case 5:
                     ClearScreen();
                     System.out.println("Borrowers History");
-                    viewBorrowerHistory();
+                    // viewBorrowerHistory();
                     break;
                 case 6:
                     ClearScreen();
                     System.out.println("Assets History");
-                    viewAssetHistory();
+                    // viewAssetHistory();
                     break;
 
                 case 7:
@@ -107,47 +134,6 @@ public class Main {
 
         userPrompt.closeScanner();
     }
-    private static void manageAssets() {
-        while (true) {
-            ClearScreen();
-            System.out.println("Assets Management");
-            System.out.println("1. Add Material");
-            System.out.println("2. Edit Material");
-            System.out.println("3. Delete Material");
-            System.out.println("4. View Materials");
-            System.out.println("5. List All Materials");
-            System.out.println("6. Back to Main Menu");
-            System.out.print("Enter your choice: ");
-            int choice = input.nextInt();
-            input.nextLine(); // Consume newline
-
-            switch (choice) {
-                case 1:
-                    ClearScreen();
-                    addMaterial();
-                    break;
-                case 2:
-                    ClearScreen();
-                    editMaterial();
-                    break;
-                case 3:
-                    ClearScreen();
-                    deleteMaterial();
-                    break;
-                    case 4:
-                    ClearScreen();
-                    viewMaterials();
-                    break;
-                case 5:
-                    assetManager.listAllMaterials();
-                    break;
-                case 6:
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
-        }
-    }
 
     private static void AddBorrower() {
         loadBorrowersFromFile();
@@ -160,7 +146,7 @@ public class Main {
             System.out.println("           Borrowers' Information Management");
             System.out.println("********************************************************");
 
-            Borrowers borrower = new Borrowers();
+            Borrowers borrower = new Borrowers(0, "", "", "", "", "", "", "", "");
 
             while (true) {
                 int borrowerId = userPrompt.promptForValidBorrowerId("Enter Borrower ID: ", borrowers);
@@ -206,168 +192,164 @@ public class Main {
 
     }
 
-    private static void addMaterial() {
-        System.out.print("Enter Material ID (9 digits): ");
-        String materialID = input.nextLine();
+    private static void AddMaterial() {
+        loadAssets();
+        boolean continueAdding = true;
+        while (continueAdding) {
 
-        if (materialID.length() != 9 || !materialID.matches("\\d+")) {
-            System.out.println("Error! Material ID must be exactly 9 digits long and contain only numbers!");
-            return;
-        }
+            ClearScreen();
+            System.out.println("********************************************************");
+            System.out.println("           Material Information Management");
+            System.out.println("********************************************************");
+            System.out.println("Choose Material Type:");
+            System.out.println("[1] Book ");
+            System.out.println("[2] Journal ");
+            System.out.println("[3] Magazine ");
+            System.out.println("[4] Thesis Book ");
+            System.out.println("[5] Exit ");
 
-        boolean exists = false;
-        for (Material mat : library) {
-            if (mat.getMaterialID().equals(materialID)) {
-                exists = true;
-                break;
+            int choice = userPrompt.getValidIntegerInput("Enter Choice: ");
+
+            switch (choice) {
+                case 1: {
+                    Book book = new Book(null, null, null, null, null, choice);
+
+                    while (true) {
+                        String materialID = userPrompt.promptForValidMaterialID("Enter Material ID: ", library);
+                        if (!findMaterialID(materialID)) {
+                            book.setMaterialID(materialID);
+                            break;
+                        } else {
+                            System.out.println("Material ID already exists! Please enter a unique Material ID.");
+                        }
+                    }
+
+                    book.setTitle(userPrompt.promptForValidString("Enter Title: "));
+                    book.setAuthor(userPrompt.promptForValidString("Enter Author:"));
+                    book.setYearPublished(userPrompt.promptForValidYear("Enter Year (YYYY):"));
+                    book.setPublisher(userPrompt.promptForValidString("Enter Publisher:"));
+                    book.setCopies(userPrompt.promptForValidInteger("Enter # of Copies:"));
+
+                    library.add(book);
+                    System.out.println("Book Successfully Added!");
+
+                    saveAssets();
+                    continueAdding = userPrompt.confirmContinue("Adding Another Material");
+                    break;
+                }
+                case 2: {
+                    Journal journal = new Journal(null, null, null, null, choice);
+
+                    while (true) {
+                        String materialID = userPrompt.promptForValidMaterialID("Enter Material ID: ", library);
+                        if (!findMaterialID(materialID)) {
+                            journal.setMaterialID(materialID);
+                            break;
+                        } else {
+                            System.out.println("Material ID already exists! Please enter a unique Material ID.");
+                        }
+                    }
+
+                    journal.setJournalName(userPrompt.promptForValidString("Enter Journal Name: "));
+                    journal.setYearPublished(userPrompt.promptForValidYear("Enter Year (YYYY): "));
+                    journal.setPublisher(userPrompt.promptForValidString("Enter Publisher: "));
+                    journal.setCopies(userPrompt.promptForValidInteger("Enter # of Copies: "));
+
+                    library.add(journal);
+                    System.out.println("Journal Successfully Added!");
+                    continueAdding = userPrompt.confirmContinue("Adding Another Material");
+                    break;
+                }
+                case 3: {
+                    Magazine magazine = new Magazine(null, null, null, null, choice);
+
+                    while (true) {
+                        String materialID = userPrompt.promptForValidMaterialID("Enter Material ID: ", library);
+                        if (!findMaterialID(materialID)) {
+                            magazine.setMaterialID(materialID);
+                            break;
+                        } else {
+                            System.out.println("Material ID already exists! Please enter a unique Material ID.");
+                        }
+                    }
+
+                    magazine.setMagazineName(userPrompt.promptForValidString("Enter Magazine Name: "));
+                    magazine.setYearPublished(userPrompt.promptForValidYear("Enter Year (YYYY): "));
+                    magazine.setPublisher(userPrompt.promptForValidString("Enter Publisher: "));
+                    magazine.setCopies(userPrompt.promptForValidInteger("Enter # of Copies: "));
+
+                    library.add(magazine);
+                    System.out.println("Magazine Successfully Added!");
+
+                    saveAssets();
+                    continueAdding = userPrompt.confirmContinue("Adding Another Material");
+                    break;
+
+                }
+                case 4: {
+                    ThesisBook thesisBook = new ThesisBook(null, null, null, null, null, choice);
+
+                    while (true) {
+                        String materialID = userPrompt.promptForValidMaterialID("Enter Material ID: ", library);
+                        if (!findMaterialID(materialID)) {
+                            thesisBook.setMaterialID(materialID);
+                            break;
+                        } else {
+                            System.out.println("Material ID already exists! Please enter a unique Material ID.");
+                        }
+                    }
+
+                    thesisBook.setTitle(userPrompt.promptForValidString("Enter Title: "));
+                    thesisBook.setAuthor(userPrompt.promptForValidString("Enter Author:"));
+                    thesisBook.setYearPublished(userPrompt.promptForValidYear("Enter Year (YYYY): "));
+                    thesisBook.setPublisher(userPrompt.promptForValidString("Enter Publisher: "));
+                    thesisBook.setCopies(userPrompt.promptForValidInteger("Enter # of Copies: "));
+
+                    library.add(thesisBook);
+                    System.out.println("Thesis Book Successfully Added!");
+                    saveAssets();
+                    continueAdding = userPrompt.confirmContinue("Adding Another Material");
+                    break;
+                }
+
+                case 5: {
+                    continueAdding = false;
+                    break;
+                }
+                default: {
+                    System.out.println("Invalid choice! Please select a valid material type.");
+                }
             }
         }
-
-        if (exists) {
-            System.out.println("Error! Material ID already exists!");
-            return;
-        }
-    
-        System.out.println("Choose Material Type:");
-        System.out.println("1. Book\n2. Journal\n3. Magazine\n4. Thesis Book");
-        System.out.print("Enter your choice: ");
-        int type = input.nextInt();
-        input.nextLine(); // Consume newline
-
-        System.out.print("Enter Number of Copies: ");
-        int copies = input.nextInt();
-        input.nextLine(); // Consume newline
-
-        Material material = null;
-        switch (type) {
-            case 1:
-                System.out.print("Enter Author: ");
-                String bookAuthor = input.nextLine();
-                System.out.print("Enter Year Published: ");
-                String bookYear = input.nextLine();
-                System.out.print("Enter Publisher: ");
-                String bookPublisher = input.nextLine();
-                material = new Book(materialID, bookAuthor, bookYear, bookPublisher, copies);
-                break;
-            case 2:
-                System.out.print("Enter Name of Journal: ");
-                String journalName = input.nextLine();
-                System.out.print("Enter Year Published: ");
-                String journalYear = input.nextLine();
-                System.out.print("Enter Publisher: ");
-                String journalPublisher = input.nextLine();
-                material = new Journal(materialID, journalName, journalYear, journalPublisher, copies);
-                break;
-                case 3:
-                System.out.print("Enter Magazine Name: ");
-                String magazineName = input.nextLine();
-                System.out.print("Enter Year Published: ");
-                String magazineYear = input.nextLine();
-                System.out.print("Enter Publisher: ");
-                String magazinePublisher = input.nextLine();
-                material = new Magazine(materialID, magazineName, magazineYear, magazinePublisher, copies);
-                break;
-            case 4:
-                System.out.print("Enter Title: ");
-                String thesisTitle = input.nextLine();
-                System.out.print("Enter Author: ");
-                String thesisAuthor = input.nextLine();
-                System.out.print("Enter Year Published: ");
-                String thesisYear = input.nextLine();
-                System.out.print("Enter Publisher: ");
-                String thesisPublisher = input.nextLine();
-                material = new ThesisBook(materialID, thesisTitle, thesisAuthor, thesisYear, thesisPublisher, copies);
-                break;
-            default:
-                System.out.println("Invalid Material Type!");
-                return;
-        }
-
-        library.add(material);
-        System.out.println("Material added successfully!");
     }
 
-    private static void editMaterial() {
-        System.out.print("Enter Material ID to Edit: ");
-        String editID = input.nextLine();
-        Material foundMaterial = null;
-
-        for (Material mat : library) {
-            if (mat.getMaterialID().equals(editID)) {
-                foundMaterial = mat;
-                break;
-            }
-        }
-
-        if (foundMaterial == null) {
-            System.out.println("Material not found!");
-            return;
-        }
-
-        System.out.println("Edit Material: " + foundMaterial);
-        System.out.print("Enter New Number of Copies: ");
-        int newCopies = input.nextInt();
-        input.nextLine();
-        foundMaterial.setCopies(newCopies);
-        System.out.println("Material updated successfully!");
-    }
-
-    private static void deleteMaterial() {
-        System.out.print("Enter Material ID to Delete: ");
-        String deleteID = input.nextLine();
-        boolean removed = library.removeIf(mat -> mat.getMaterialID().equals(deleteID));
-
-        if (removed) {
-            System.out.println("Material deleted successfully!");
-        } else {
-            System.out.println("Error: Material not found!");
-        }
-    }
-
-    private static void viewMaterials() {
-        if (library.isEmpty()) {
-            System.out.println("No materials found in the library.");
-        } else {
-            System.out.println("\n--- Library Materials ---");
-            for (Material mat : library) {
-                System.out.println(mat + "\n");
-            }
-        }
-    }
-
-    
-    private static void viewBorrowerHistory() {
-        loadBorrowersFromFile();
-
-        System.out.print("Enter Borrower ID to view history: ");
-        int borrowerId = input.nextInt();
-        input.nextLine();
-
-        Borrowers borrower = findBorrowerById(borrowerId);
-        if (borrower != null) {
-            borrower.viewBorrowerHistory();
-        } else {
-            System.out.println("Borrower not found.");
-        }
-    }
-
-    private static void viewAssetHistory() {
-        System.out.print("Enter Material ID to view history: ");
-        String materialID = input.nextLine();
-
-        AssetHistory assetHistory = assetManager.getAssetHistory(materialID);
-        if (assetHistory != null) {
-            for (AssetHistory.BorrowRecord record : assetHistory.getAssetHistory()) {
-                System.out.println("Borrower ID: " + record.getBorrowerID());
-                System.out.println("Borrow Date: " + record.getBorrowDate());
-                System.out.println("Return Date: " + record.getReturnDate());
-                System.out.println("-------------------------------------------------");
-            }
-        } else {
-            System.out.println("Material not found.");
-        }
-    }
-
+    // private static void viewBorrowerHistory() {
+    //     loadBorrowersFromFile();
+    //     System.out.print("Enter Borrower ID to view history: ");
+    //     int borrowerId = input.nextInt();
+    //     input.nextLine();
+    //     Borrowers borrower = findBorrowerById(borrowerId);
+    //     if (borrower != null) {
+    //         borrower.viewBorrowerHistory();
+    //     } else {
+    //         System.out.println("Borrower not found.");
+    //     }
+    // }
+    // private static void viewAssetHistory() {
+    //     System.out.print("Enter Material ID to view history: ");
+    //     String materialID = input.nextLine();
+    //     AssetHistory assetHistory = assetManager.getAssetHistory(materialID);
+    //     if (assetHistory != null) {
+    //         for (AssetHistory.BorrowRecord record : assetHistory.getAssetHistory()) {
+    //             System.out.println("Borrower ID: " + record.getBorrowerID());
+    //             System.out.println("Borrow Date: " + record.getBorrowDate());
+    //             System.out.println("Return Date: " + record.getReturnDate());
+    //             System.out.println("-------------------------------------------------");
+    //         }
+    //     } else {
+    //         System.out.println("Material not found.");
+    //     }
+    // }
     private static void EditBorrower() {
 
         boolean continueEditing = true;
@@ -448,6 +430,74 @@ public class Main {
         continueEditing = userPrompt.confirmContinue("Editing Borrower's Information");
     }
 
+    private static void EditMaterial() {
+        loadAssets();
+        boolean continueEditing = true;
+        while (continueEditing) {
+            ClearScreen();
+            System.out.println("********************************************************");
+            System.out.println("              Edit Material Information");
+            System.out.println("********************************************************");
+            System.out.println("Enter Material ID to edit: ");
+            String materialID = input.nextLine();
+            Material material = library.stream().filter(m -> m.getMaterialID().equalsIgnoreCase(materialID)).findFirst().orElse(null);
+            if (material == null) {
+                System.out.println("Material ID not found.");
+                continue;
+            }
+            System.out.println("Choose What to Edit:");
+            System.out.println("[1] Title");
+            System.out.println("[2] Author");
+            System.out.println("[3] Year Published");
+            System.out.println("[4] Publisher");
+            System.out.println("[5] Copies");
+            System.out.println("[6] Back to Previous Menu");
+
+            int editChoice = userPrompt.getValidIntegerInput("Enter Choice: ");
+
+            switch (editChoice) {
+                case 1:
+                    if (material instanceof Book || material instanceof ThesisBook) {
+                        String title = userPrompt.promptForValidString("Enter New Title: ");
+                        ((Book) material).setTitle(title);
+                    } else if (material instanceof Journal) {
+                        String journalName = userPrompt.promptForValidString("Enter New Journal Name: ");
+                        ((Journal) material).setJournalName(journalName);
+                    } else if (material instanceof Magazine) {
+                        String magazineName = userPrompt.promptForValidString("Enter New Magazine Name: ");
+                        ((Magazine) material).setMagazineName(magazineName);
+                    }
+                    break;
+                case 2:
+                    if (material instanceof Book || material instanceof ThesisBook) {
+                        String author = userPrompt.promptForValidString("Enter New Author: ");
+                        ((Book) material).setAuthor(author);
+                    }
+                    break;
+                case 3:
+                    String yearPublished = userPrompt.promptForValidYear("Enter New Year Published (YYYY): ");
+                    material.setYearPublished(yearPublished);
+                    break;
+                case 4:
+                    String publisher = userPrompt.promptForValidString("Enter New Publisher: ");
+                    material.setPublisher(publisher);
+                    break;
+                case 5:
+                    int copies = userPrompt.promptForValidInteger("Enter New # of Copies: ");
+                    material.setCopies(copies);
+                    break;
+                case 6:
+                    continueEditing = false;
+                    break;
+                default:
+                    System.out.println("Invalid Choice!!! Please Try Again!!!");
+            }
+            System.out.println("Material Information Edited Successfully!!!");
+            saveAssets();
+            continueEditing = userPrompt.confirmContinue("Editing Material Information");
+        }
+    }
+
     private static void DeleteBorrower() {
         loadBorrowersFromFile();
 
@@ -500,6 +550,7 @@ public class Main {
                 System.out.println("Contact Number: " + borrower.getContactNumber());
                 System.out.println("Email: " + borrower.getEmail());
                 System.out.println("Address: " + borrower.getAddress());
+                System.out.println("Violations: " + borrower.getViolationNum());
             }
             continueViewing = userPrompt.confirmContinue("Viewing Borrower's Information");
         }
@@ -540,7 +591,7 @@ public class Main {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
-                Borrowers borrower = new Borrowers();
+                Borrowers borrower = new Borrowers(0, "", "", "", "", "", "", "", "");
                 borrower.setId(Integer.parseInt(data[0]));
                 borrower.setLastName(data[1]);
                 borrower.setFirstName(data[2]);
@@ -588,6 +639,133 @@ public class Main {
             } catch (IOException e) {
                 System.out.println("Error closing FileWriter: " + e.getMessage());
             }
-        }  
+        }
+    }
+
+    private static boolean findMaterialID(String materialId) {
+        if (materialId == null || library == null) {
+            return false;
+        }
+        for (Material material : library) {
+            if (material.getMaterialID().equalsIgnoreCase(materialId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void loadAssets() {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("assets.txt"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length < 5) {
+                    System.out.println("Skipping invalid line: " + line);
+                    continue;
+                }
+                String type = parts[0];
+                String materialID = parts[1];
+                String yearPublished = parts[2];
+                String publisher = parts[3];
+                int copies = Integer.parseInt(parts[4]);
+
+                Material material;
+                switch (type.toLowerCase()) {
+                    case "book":
+                        String title = parts[5];
+                        String author = parts[6];
+                        material = new Book(materialID, title, author, yearPublished, publisher, copies);
+                        break;
+                    case "magazine":
+                        String magazineName = parts[5];
+                        material = new Magazine(materialID, magazineName, yearPublished, publisher, copies);
+                        break;
+                    case "journal":
+                        String journalName = parts[5];
+                        material = new Journal(materialID, journalName, yearPublished, publisher, copies);
+                    case "thesis book":
+                        title = parts[5];
+                        author = parts[6];
+                        material = new ThesisBook(materialID, title, author, yearPublished, publisher, copies);
+                        break;
+                    default:
+                        System.out.println("Unknown material type: " + type);
+                        continue;
+                }
+                library.add(material);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private static void saveAssets() {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter("assets.txt"));
+            for (Material material : library) {
+                StringBuilder line = new StringBuilder();
+                if (material instanceof Book) {
+                    Book book = (Book) material;
+                    line.append("book,")
+                            .append(book.getMaterialID()).append(",")
+                            .append(book.getYearPublished()).append(",")
+                            .append(book.getPublisher()).append(",")
+                            .append(book.getCopies()).append(",")
+                            .append(book.getTitle()).append(",")
+                            .append(book.getAuthor());
+                } else if (material instanceof Magazine) {
+                    Magazine magazine = (Magazine) material;
+                    line.append("magazine,")
+                            .append(magazine.getMaterialID()).append(",")
+                            .append(magazine.getYearPublished()).append(",")
+                            .append(magazine.getPublisher()).append(",")
+                            .append(magazine.getCopies()).append(",")
+                            .append(magazine.getMagazineName());
+                } else if (material instanceof Journal) {
+                    Journal journal = (Journal) material;
+                    line.append("journal,")
+                            .append(journal.getMaterialID()).append(",")
+                            .append(journal.getYearPublished()).append(",")
+                            .append(journal.getPublisher()).append(",")
+                            .append(journal.getCopies()).append(",")
+                            .append(journal.getJournalName());
+                } else if (material instanceof ThesisBook) {
+                    ThesisBook thesisBook = (ThesisBook) material;
+                    line.append("thesis book,")
+                            .append(thesisBook.getMaterialID()).append(",")
+                            .append(thesisBook.getYearPublished()).append(",")
+                            .append(thesisBook.getPublisher()).append(",")
+                            .append(thesisBook.getCopies()).append(",")
+                            .append(thesisBook.getTitle()).append(",")
+                            .append(thesisBook.getAuthor());
+                } else {
+                    System.out.println("Unknown material type: " + material.getClass().getSimpleName());
+                    continue;
+                }
+                writer.write(line.toString());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
