@@ -1,5 +1,3 @@
-
-
 import java.util.*;
 
 class userPrompt {
@@ -43,6 +41,21 @@ class userPrompt {
             } else {
                 System.out.println("Invalid input. Please enter a valid 1-9 digit integer.");
                 scanner.next(); // clear the invalid input
+            }
+        }
+    }
+
+    public int promptForValidInteger(String prompt) {
+        int input = 0;
+        while (true) {
+            System.out.print(prompt);
+            if (scanner.hasNextInt()) {
+                input = scanner.nextInt();
+                scanner.nextLine(); // consume newline
+                return input;
+            } else {
+                System.out.println("Invalid input. Please enter a valid integer.");
+                scanner.next(); // clear invalid input
             }
         }
     }
@@ -171,6 +184,21 @@ class userPrompt {
         }
     }
 
+    public String promptForValidYear(String prompt) {
+        String year;
+        while (true) {
+            System.out.print(prompt);
+            year = scanner.nextLine().trim();
+
+            // Basic YYYY format check
+            if (year.matches("\\d{4}")) {
+                return year;
+            } else {
+                System.out.println("Invalid year format. Please use YYYY.");
+            }
+        }
+    }
+
     public String promptForValidContactNum(String prompt) {
         String contactNum;
 
@@ -229,21 +257,6 @@ class userPrompt {
         }
     }
 
-    public boolean confirmContinue(String action) {
-        while (true) {
-            System.out.print("Do You Want to " + action + " Again? (y/n): ");
-            String response = scanner.nextLine().trim().toLowerCase();
-
-            if (response.equals("y")) {
-                return true;
-            } else if (response.equals("n")) {
-                return false;
-            } else {
-                System.out.println("Invalid Input!!! Please Enter 'y' or 'n'.");
-            }
-        }
-    }
-
     public String promptForValidAddress(String prompt) {
         String input;
         while (true) {
@@ -263,6 +276,52 @@ class userPrompt {
                 }
             }
             System.out.println("Invalid input. Please enter a valid address.");
+        }
+    }
+
+    public String promptForValidMaterialID(String prompt, ArrayList<Material> library) {
+
+        Scanner scanner = new Scanner(System.in);
+        String materialID;
+
+        boolean isValid;
+
+        do {
+            System.out.print(prompt);
+            materialID = scanner.nextLine().trim();
+            isValid = true;
+
+            if (!materialID.matches("[a-zA-Z0-9]+")) {
+            System.out.println("Invalid input. Please enter an alphanumeric ID.");
+            isValid = false;
+            continue;
+            }
+
+            for (Material material : library) {
+            if (material.getMaterialID().equals(materialID)) {
+                System.out.println("Material ID already exists. Please enter a unique ID.");
+                isValid = false;
+                break;
+            }
+            }
+        } while (!isValid);
+
+        return materialID;
+
+    }
+
+    public boolean confirmContinue(String action) {
+        while (true) {
+            System.out.print("Do You Want to " + action + " Again? (y/n): ");
+            String response = scanner.nextLine().trim().toLowerCase();
+
+            if (response.equals("y")) {
+                return true;
+            } else if (response.equals("n")) {
+                return false;
+            } else {
+                System.out.println("Invalid Input!!! Please Enter 'y' or 'n'.");
+            }
         }
     }
 
